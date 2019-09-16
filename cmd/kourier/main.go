@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	nodeID         = "3scale-courier"
-	gatewayPort    = 19001
-	managementPort = 18000
+	nodeID                = "3scale-courier"
+	gatewayPort           = 19001
+	managementPort        = 18000
+	eventsChannelCapacity = 10
 )
 
 func init() {
@@ -32,7 +33,10 @@ func main() {
 	kubernetesClient := kubernetes.NewKubernetesClient(config)
 	knativeClient := knative.NewKnativeClient(config)
 
-	eventsChan := make(chan string)
+	// We observed that sometimes we get many similar events in a small window
+	// of time. This buffered channel makes it possible to reload the config
+	// only once when there are several events queued.
+	eventsChan := make(chan string, eventsChannelCapacity)
 
 	stopChanEndpoints := make(chan struct{})
 	go kubernetesClient.WatchChangesInEndpoints(namespace, eventsChan, stopChanEndpoints)
@@ -52,6 +56,14 @@ func main() {
 
 		envoyXdsServer.SetSnapshotForKnativeServices(nodeID, serviceList)
 
-		<-eventsChan // Block until there's a change in the endpoints or servings
+		// If there are no events enqueued, block until there's one.
+		// If there are several queued events, consume all to reload the config
+		// just once.
+		<-eventsChan
+
+		for i := 0; i < len(eventsChan); i++ {
+			<-eventsChan
+		}
+
 	}
 }

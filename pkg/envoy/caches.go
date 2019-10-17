@@ -42,8 +42,6 @@ func CachesForClusterIngresses(Ingresses []v1alpha1.IngressAccessor, kubeClient 
 		routeName := getRouteName(ingress)
 		routeNamespace := getRouteNamespace(ingress)
 
-		ingressVisibility := ingress.GetSpec().Visibility
-
 		log.WithFields(log.Fields{"name": routeName, "namespace": routeNamespace}).Info("Knative Ingress found")
 
 		for _, rule := range ingress.GetSpec().Rules {
@@ -119,20 +117,10 @@ func CachesForClusterIngresses(Ingresses []v1alpha1.IngressAccessor, kubeClient 
 				Routes:  ruleRoute,
 			}
 
-			switch rule.Visibility {
-			case v1alpha1.IngressVisibilityExternalIP:
+			if ingressRuleIsExternal(rule, ingress.GetSpec().Visibility) {
 				externalVirtualHosts = append(externalVirtualHosts, &virtualHost)
-				clusterLocalVirtualHosts = append(clusterLocalVirtualHosts, &virtualHost)
-			case v1alpha1.IngressVisibilityClusterLocal:
-				clusterLocalVirtualHosts = append(clusterLocalVirtualHosts, &virtualHost)
-			default:
-				if ingressVisibility == v1alpha1.IngressVisibilityClusterLocal {
-					clusterLocalVirtualHosts = append(clusterLocalVirtualHosts, &virtualHost)
-				} else { // KNative defaults to external
-					externalVirtualHosts = append(externalVirtualHosts, &virtualHost)
-					clusterLocalVirtualHosts = append(clusterLocalVirtualHosts, &virtualHost)
-				}
 			}
+			clusterLocalVirtualHosts = append(clusterLocalVirtualHosts, &virtualHost)
 		}
 	}
 
@@ -165,6 +153,17 @@ func getRouteNamespace(ingress v1alpha1.IngressAccessor) string {
 
 func getRouteName(ingress v1alpha1.IngressAccessor) string {
 	return ingress.GetLabels()["serving.knative.dev/route"]
+}
+
+func ingressRuleIsExternal(ingressRule v1alpha1.IngressRule, ingressLevelVisibility v1alpha1.IngressVisibility) bool {
+	switch ingressRule.Visibility {
+	case v1alpha1.IngressVisibilityExternalIP:
+		return true
+	case v1alpha1.IngressVisibilityClusterLocal:
+		return false
+	default: // If there is not anything set, Knative defaults to "external"
+		return ingressLevelVisibility != v1alpha1.IngressVisibilityClusterLocal
+	}
 }
 
 func lbEndpointsForKubeEndpoints(kubeEndpoints *kubev1.EndpointsList, targetPort int32) (privateLbEndpoints []*endpoint.LbEndpoint, publicLbEndpoints []*endpoint.LbEndpoint) {

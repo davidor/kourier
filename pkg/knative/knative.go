@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	internalDomain = "3scale-kourier.knative-serving.svc.cluster.local"
+	internalDomain = "kourier-internal.istio-system.svc.cluster.local"
 )
 
 type KNativeClient struct {
@@ -138,7 +138,11 @@ func (kNativeClient *KNativeClient) MarkIngressReady(ingress networkingv1alpha1.
 				},
 			},
 			nil,
-			nil)
+			[]networkingv1alpha1.LoadBalancerIngressStatus{
+				{
+					DomainInternal: internalDomain,
+				},
+			})
 		status.MarkNetworkConfigured()
 		status.ObservedGeneration = ingress.GetGeneration()
 		status.ObservedGeneration = ingress.GetGeneration()

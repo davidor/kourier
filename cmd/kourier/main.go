@@ -54,6 +54,7 @@ func init() {
 
 func main() {
 	namespace := v1.NamespaceAll
+
 	config := kubernetes.Config(*kubeconfig)
 	kubernetesClient := kubernetes.NewKubernetesClient(config)
 	knativeClient := knative.NewKnativeClient(config)

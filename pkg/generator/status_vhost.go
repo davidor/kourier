@@ -17,15 +17,16 @@
 package generator
 
 import (
+	"crypto/md5"
+	"encoding/json"
 	"fmt"
+	"k8s.io/api/networking/v1beta1"
 	"kourier/pkg/config"
 	"kourier/pkg/envoy"
 
 	route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
-	"knative.dev/serving/pkg/apis/networking/v1alpha1"
-	networkIngress "knative.dev/serving/pkg/network/ingress"
 )
 
 // Generates an internal virtual host that signals that the Envoy instance has
@@ -34,7 +35,7 @@ import (
 // params. The path of the routes are hashed ingresses. With this, if the
 // request for a hashed ingress is successful, we know that the gateway has been
 // configured for that ingress.
-func statusVHost(ingresses []*v1alpha1.Ingress) route.VirtualHost {
+func statusVHost(ingresses []*v1beta1.Ingress) route.VirtualHost {
 	return envoy.NewVirtualHost(
 		config.InternalKourierDomain,
 		[]string{config.InternalKourierDomain},
@@ -42,11 +43,11 @@ func statusVHost(ingresses []*v1alpha1.Ingress) route.VirtualHost {
 	)
 }
 
-func statusRoutes(ingresses []*v1alpha1.Ingress) []*route.Route {
+func statusRoutes(ingresses []*v1beta1.Ingress) []*route.Route {
 	var hashes []string
 	var routes []*route.Route
 	for _, ingress := range ingresses {
-		hash, err := networkIngress.ComputeHash(ingress)
+		hash, err := computeHash(ingress)
 		if err != nil {
 			log.Errorf("Failed to hash ingress %s: %s", ingress.Name, err)
 			break
@@ -71,4 +72,14 @@ func statusRoutes(ingresses []*v1alpha1.Ingress) []*route.Route {
 	routes = append(routes, staticRoute)
 
 	return routes
+}
+
+func computeHash(ing *v1beta1.Ingress) ([16]byte, error) {
+	bytes, err := json.Marshal(ing.Spec)
+	if err != nil {
+		return [16]byte{}, fmt.Errorf("failed to serialize Ingress: %w", err)
+	}
+	bytes = append(bytes, []byte(ing.GetNamespace())...)
+	bytes = append(bytes, []byte(ing.GetName())...)
+	return md5.Sum(bytes), nil
 }

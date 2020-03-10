@@ -17,17 +17,9 @@
 package generator
 
 import (
-	"kourier/pkg/envoy"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-
-	logtest "knative.dev/pkg/logging/testing"
-	"knative.dev/pkg/tracker"
-
 	"k8s.io/client-go/kubernetes"
-
-	"k8s.io/client-go/kubernetes/fake"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
@@ -35,11 +27,10 @@ import (
 	kubev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	corev1listers "k8s.io/client-go/listers/core/v1"
-	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 )
 
+/*
 // Tests that when there is a traffic split defined in the ingress:
 // - Creates a route with weighted clusters defined.
 // - There's one weighted cluster for each traffic split and each contains:
@@ -164,7 +155,9 @@ func TestTrafficSplits(t *testing.T) {
 		clustersExist([]string{"hello-world-rev1/", "hello-world-rev2/"}, ingressTranslation.clusters),
 	)
 }
+*/
 
+/*
 func TestIngressWithTLS(t *testing.T) {
 	// TLS data for the test
 	tlsSecretName := "tls-secret"
@@ -250,7 +243,7 @@ func TestIngressWithTLS(t *testing.T) {
 		cmp.AllowUnexported(envoy.SNIMatch{}),
 	)
 }
-
+*/
 func newMockedEndpointsLister() corev1listers.EndpointsLister {
 	return new(endpointsLister)
 }

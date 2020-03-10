@@ -17,6 +17,7 @@
 package generator
 
 import (
+	"k8s.io/api/networking/v1beta1"
 	"kourier/pkg/envoy"
 
 	"go.uber.org/zap"
@@ -29,11 +30,10 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	kubeclient "k8s.io/client-go/kubernetes"
-	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 )
 
 type Caches struct {
-	ingresses           map[string]*v1alpha1.Ingress
+	ingresses           map[string]*v1beta1.Ingress
 	translatedIngresses map[string]*translatedIngress
 	clusters            *ClustersCache
 	clustersToIngress   map[string][]string
@@ -45,7 +45,7 @@ type Caches struct {
 
 func NewCaches(logger *zap.SugaredLogger) *Caches {
 	return &Caches{
-		ingresses:           make(map[string]*v1alpha1.Ingress),
+		ingresses:           make(map[string]*v1beta1.Ingress),
 		translatedIngresses: make(map[string]*translatedIngress),
 		clusters:            newClustersCache(logger.Named("cluster-cache")),
 		clustersToIngress:   make(map[string][]string),
@@ -53,12 +53,12 @@ func NewCaches(logger *zap.SugaredLogger) *Caches {
 	}
 }
 
-func (caches *Caches) GetIngress(ingressName, ingressNamespace string) *v1alpha1.Ingress {
+func (caches *Caches) GetIngress(ingressName, ingressNamespace string) *v1beta1.Ingress {
 	caches.logger.Debugf("getting ingress: %s/%s", ingressName, ingressNamespace)
 	return caches.ingresses[mapKey(ingressName, ingressNamespace)]
 }
 
-func (caches *Caches) AddTranslatedIngress(ingress *v1alpha1.Ingress, translatedIngress *translatedIngress) {
+func (caches *Caches) AddTranslatedIngress(ingress *v1beta1.Ingress, translatedIngress *translatedIngress) {
 	caches.logger.Debugf("adding ingress: %s/%s", ingress.Name, ingress.Namespace)
 
 	key := mapKey(ingress.Name, ingress.Namespace)
@@ -76,7 +76,7 @@ func (caches *Caches) SetOnEvicted(f func(string, interface{})) {
 }
 
 func (caches *Caches) AddStatusVirtualHost() {
-	var ingresses []*v1alpha1.Ingress
+	var ingresses []*v1beta1.Ingress
 	for _, val := range caches.ingresses {
 		ingresses = append(ingresses, val)
 	}
@@ -155,7 +155,7 @@ func (caches *Caches) DeleteIngressInfo(ingressName string, ingressNamespace str
 	newExternalVirtualHosts := caches.externalVirtualHosts()
 	newClusterLocalVirtualHosts := caches.clusterLocalVirtualHosts()
 
-	var ingresses []*v1alpha1.Ingress
+	var ingresses []*v1beta1.Ingress
 	for _, val := range caches.ingresses {
 		ingresses = append(ingresses, val)
 	}

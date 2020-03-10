@@ -16,6 +16,7 @@
 
 package knative
 
+/*
 import (
 	"strings"
 
@@ -76,3 +77,4 @@ func RuleIsExternal(rule v1alpha1.IngressRule, ingressVisibility v1alpha1.Ingres
 		return ingressVisibility != v1alpha1.IngressVisibilityClusterLocal
 	}
 }
+*/

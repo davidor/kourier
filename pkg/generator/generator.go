@@ -17,6 +17,7 @@
 package generator
 
 import (
+	"k8s.io/api/networking/v1beta1"
 	"kourier/pkg/config"
 	"kourier/pkg/envoy"
 	"os"
@@ -29,7 +30,6 @@ import (
 	route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubeclient "k8s.io/client-go/kubernetes"
-	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 )
 
 const (
@@ -43,7 +43,7 @@ const (
 
 // For now, when updating the info for an ingress we delete it, and then
 // regenerate it. We can optimize this later.
-func UpdateInfoForIngress(caches *Caches, ingress *v1alpha1.Ingress, kubeclient kubeclient.Interface, translator *IngressTranslator, logger *zap.SugaredLogger, extAuthzEnabled bool) error {
+func UpdateInfoForIngress(caches *Caches, ingress *v1beta1.Ingress, kubeclient kubeclient.Interface, translator *IngressTranslator, logger *zap.SugaredLogger, extAuthzEnabled bool) error {
 	if err := caches.DeleteIngressInfo(ingress.Name, ingress.Namespace, kubeclient); err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func UpdateInfoForIngress(caches *Caches, ingress *v1alpha1.Ingress, kubeclient 
 }
 
 func addIngressToCaches(caches *Caches,
-	ingress *v1alpha1.Ingress,
+	ingress *v1beta1.Ingress,
 	translator *IngressTranslator,
 	logger *zap.SugaredLogger,
 	extAuthzEnabled bool) error {

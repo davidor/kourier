@@ -17,18 +17,14 @@
 package generator
 
 import (
-	"fmt"
+	"k8s.io/api/networking/v1beta1"
 	"kourier/pkg/envoy"
-	"kourier/pkg/knative"
 	"time"
 
 	endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 
 	"go.uber.org/zap"
 	kubev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	kubeclient "k8s.io/client-go/kubernetes"
 	corev1listers "k8s.io/client-go/listers/core/v1"
 	"knative.dev/pkg/tracker"
@@ -74,6 +70,12 @@ func newTranslatedIngress(ingressName string, ingressNamespace string) translate
 	}
 }
 
+func (translator *IngressTranslator) translateIngress(ingress *v1beta1.Ingress, extAuthzEnabled bool) (*translatedIngress, error) {
+
+	return nil, nil
+}
+
+/*
 func (translator *IngressTranslator) translateIngress(ingress *v1alpha1.Ingress, extAuthzEnabled bool) (*translatedIngress, error) {
 	res := newTranslatedIngress(ingress.Name, ingress.Namespace)
 
@@ -217,7 +219,7 @@ func (translator *IngressTranslator) translateIngress(ingress *v1alpha1.Ingress,
 
 	return &res, nil
 }
-
+*/
 func lbEndpointsForKubeEndpoints(kubeEndpoints *kubev1.Endpoints, targetPort int32) (publicLbEndpoints []*endpoint.LbEndpoint) {
 	for _, subset := range kubeEndpoints.Subsets {
 		for _, address := range subset.Addresses {

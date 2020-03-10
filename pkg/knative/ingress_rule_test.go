@@ -16,6 +16,7 @@
 
 package knative
 
+/*
 import (
 	"sort"
 	"testing"
@@ -23,6 +24,7 @@ import (
 	"gotest.tools/assert"
 	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 )
+
 
 var testRule = v1alpha1.IngressRule{
 	Hosts: []string{
@@ -88,3 +90,4 @@ func TestRuleIsExternalWithoutVisibility(t *testing.T) {
 	// Knative defaults to external, so it should return true
 	assert.Equal(t, RuleIsExternal(ruleWithoutVisibility, ""), true)
 }
+*/

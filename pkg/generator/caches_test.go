@@ -16,6 +16,7 @@
 
 package generator
 
+/*
 import (
 	"kourier/pkg/config"
 	"sort"
@@ -195,3 +196,4 @@ func getVHostsNames(routeConfigs []v2.RouteConfiguration) ([]string, error) {
 
 	return res, nil
 }
+*/

@@ -14,18 +14,19 @@
 
 */
 
-package knative
+package k8s
 
-
-/*
 import (
 	"knative.dev/pkg/network"
 	"knative.dev/pkg/system"
 	networkingv1alpha1 "knative.dev/serving/pkg/apis/networking/v1alpha1"
-
-	"kourier/pkg/config"
 )
 
+func MarkIngressReady(ingress *networkingv1alpha1.Ingress) {
+	// TODO
+}
+
+/*
 func MarkIngressReady(ingress *networkingv1alpha1.Ingress) {
 	status := ingress.Status
 	internalDomain := domainForServiceName(config.InternalServiceName)
@@ -55,8 +56,8 @@ func MarkIngressReady(ingress *networkingv1alpha1.Ingress) {
 	status.ObservedGeneration = ingress.GetGeneration()
 	ingress.Status = status
 }
+*/
 
 func domainForServiceName(serviceName string) string {
 	return serviceName + "." + system.Namespace() + ".svc." + network.GetClusterDomainName()
 }
-*/

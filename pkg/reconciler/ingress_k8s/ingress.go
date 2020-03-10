@@ -14,7 +14,7 @@
 
 */
 
-package ingress
+package ingress_k8s
 
 import (
 	"context"
